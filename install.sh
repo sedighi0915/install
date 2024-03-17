@@ -87,11 +87,14 @@ install_base() {
     fedora)
         dnf -y update && dnf install -y -q wget curl tar tzdata
         ;;
+    debian | ubuntu)
+        apt-get update && apt-get install -y -q wget curl tar tzdata
+        ;;
     arch | manjaro)
         pacman -Syu && pacman -Syu --noconfirm wget curl tar tzdata
         ;;
     *)
-        apt-get update && apt install -y -q wget curl tar tzdata
+        echo -e "${red}Unsupported OS!${plain}" && exit 1
         ;;
     esac
 }
@@ -130,7 +133,4 @@ install_x-ui() {
         fi
     else
         last_version=$1
-        url="https://github.com/MHSanaei/3x-ui/releases/download/${last_version}/x-ui-linux-$(arch3xui).tar.gz"
-        echo -e "Beginning to install x-ui $1"
-        wget -N --no-check-certificate -O /usr/local/x-ui-linux-$(arch3xui).tar.gz ${url}
-       
+        url="https://
