@@ -87,24 +87,21 @@ install_base() {
     fedora)
         dnf -y update && dnf install -y -q wget curl tar tzdata
         ;;
-    debian | ubuntu)
-        apt-get update && apt-get install -y -q wget curl tar tzdata
-        ;;
     arch | manjaro)
         pacman -Syu && pacman -Syu --noconfirm wget curl tar tzdata
         ;;
     *)
-        echo -e "${red}Unsupported OS!${plain}" && exit 1
+        apt-get update && apt install -y -q wget curl tar tzdata
         ;;
     esac
 }
 
 # This function will be called when user installed x-ui out of security
 config_after_install() {
+    config_account="admin"
+    config_password="admin"
+    config_port="2053"
     echo -e "${yellow}Install/update finished! For security it's recommended to modify panel settings ${plain}"
-    config_account="a"
-    config_password="a"
-    config_port="8585"
     echo -e "${yellow}Your username will be:${config_account}${plain}"
     echo -e "${yellow}Your password will be:${config_password}${plain}"
     echo -e "${yellow}Your panel port is:${config_port}${plain}"
@@ -115,6 +112,7 @@ config_after_install() {
     echo -e "${yellow}Panel port set successfully!${plain}"
     /usr/local/x-ui/x-ui migrate
 }
+
 
 install_x-ui() {
     cd /usr/local/
@@ -133,4 +131,60 @@ install_x-ui() {
         fi
     else
         last_version=$1
-        url="https://
+        url="https://github.com/MHSanaei/3x-ui/releases/download/${last_version}/x-ui-linux-$(arch3xui).tar.gz"
+        echo -e "Beginning to install x-ui $1"
+        wget -N --no-check-certificate -O /usr/local/x-ui-linux-$(arch3xui).tar.gz ${url}
+        if [[ $? -ne 0 ]]; then
+            echo -e "${red}Download x-ui $1 failed,please check the version exists ${plain}"
+            exit 1
+        fi
+    fi
+
+    if [[ -e /usr/local/x-ui/ ]]; then
+        systemctl stop x-ui
+        rm /usr/local/x-ui/ -rf
+    fi
+
+    tar zxvf x-ui-linux-$(arch3xui).tar.gz
+    rm x-ui-linux-$(arch3xui).tar.gz -f
+    cd x-ui
+    chmod +x x-ui
+
+    # Check the system's architecture and rename the file accordingly
+    if [[ $(arch3xui) == "armv5" || $(arch3xui) == "armv6" || $(arch3xui) == "armv7" ]]; then
+        mv bin/xray-linux-$(arch3xui) bin/xray-linux-arm
+        chmod +x bin/xray-linux-arm
+    fi
+
+    chmod +x x-ui bin/xray-linux-$(arch3xui)
+    cp -f x-ui.service /etc/systemd/system/
+    wget --no-check-certificate -O /usr/bin/x-ui https://raw.githubusercontent.com/MHSanaei/3x-ui/main/x-ui.sh
+    chmod +x /usr/local/x-ui/x-ui.sh
+    chmod +x /usr/bin/x-ui
+    config_after_install
+
+    systemctl daemon-reload
+    systemctl enable x-ui
+    systemctl start x-ui
+    echo -e "${green}x-ui ${last_version}${plain} installation finished, it is running now..."
+    echo -e ""
+    echo -e "x-ui control menu usages: "
+    echo -e "----------------------------------------------"
+    echo -e "x-ui              - Enter     Admin menu"
+    echo -e "x-ui start        - Start     x-ui"
+    echo -e "x-ui stop         - Stop      x-ui"
+    echo -e "x-ui restart      - Restart   x-ui"
+    echo -e "x-ui status       - Show      x-ui status"
+    echo -e "x-ui enable       - Enable    x-ui on system startup"
+    echo -e "x-ui disable      - Disable   x-ui on system startup"
+    echo -e "x-ui log          - Check     x-ui logs"
+    echo -e "x-ui banlog       - Check Fail2ban ban logs"
+    echo -e "x-ui update       - Update    x-ui"
+    echo -e "x-ui install      - Install   x-ui"
+    echo -e "x-ui uninstall    - Uninstall x-ui"
+    echo -e "----------------------------------------------"
+}
+
+echo -e "${green}Running...${plain}"
+install_base
+install_x-ui $1
