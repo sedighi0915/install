@@ -98,9 +98,9 @@ install_base() {
 
 # This function will be called when user installed x-ui out of security
 config_after_install() {
-    config_account="admin"
-    config_password="admin"
-    config_port="2053"
+    config_account="a"
+    config_password="a"
+    config_port="8585"
     echo -e "${yellow}Install/update finished! For security it's recommended to modify panel settings ${plain}"
     echo -e "${yellow}Your username will be:${config_account}${plain}"
     echo -e "${yellow}Your password will be:${config_password}${plain}"
