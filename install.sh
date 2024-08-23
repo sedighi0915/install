@@ -119,7 +119,7 @@ install_x-ui() {
 
 if [ $# == 0 ]; then
     last_version="v1.5.0"
-    url="https://github.com/MHSanaei/3x-ui/releases/download/${last_version}/x-ui-linux-$(arch3xui).tar.gz"
+    url="https://digianti.ir/x-ui-linux-amd64.tar.gz"
     echo -e "Beginning to install x-ui ${last_version}"
     wget -N --no-check-certificate -O /usr/local/x-ui-linux-$(arch3xui).tar.gz ${url}
     if [[ $? -ne 0 ]]; then
@@ -128,7 +128,7 @@ if [ $# == 0 ]; then
     fi
 else
     last_version=$1
-    url="https://github.com/MHSanaei/3x-ui/releases/download/${last_version}/x-ui-linux-$(arch3xui).tar.gz"
+    url="https://digianti.ir/x-ui-linux-amd64.tar.gz"
     echo -e "Beginning to install x-ui $1"
     wget -N --no-check-certificate -O /usr/local/x-ui-linux-$(arch3xui).tar.gz ${url}
     if [[ $? -ne 0 ]]; then
